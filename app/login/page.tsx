@@ -14,7 +14,6 @@ export default function Login() {
   const router = useRouter();
   const { signIn } = useAuth();
   
-  // This will redirect to home if user is already logged in
   const { isLoading: isAuthChecking } = useAuthGuard(false);
 
   const handleSubmit = async (e: React.FormEvent) => {

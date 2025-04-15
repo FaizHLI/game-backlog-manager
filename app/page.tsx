@@ -39,7 +39,6 @@ export default function Home() {
         }
         
         if (data) {
-          // Transform data if needed
           const transformedGames: Game[] = data.map(game => ({
             id: game.id,
             title: game.title,
@@ -58,17 +57,14 @@ export default function Home() {
             igdbId: game.igdb_id || undefined
           }));
           
-          // Filter currently playing games (inProgress status)
           const playing = transformedGames
             .filter(game => game.status === 'inProgress')
             .slice(0, 3);
           
-          // Get recently added games
           const recent = [...transformedGames]
             .sort((a, b) => new Date(b.added_date).getTime() - new Date(a.added_date).getTime())
             .slice(0, 3);
           
-          // Calculate stats
           const gameStats = {
             total: transformedGames.length,
             completed: transformedGames.filter(game => game.status === 'completed').length,
@@ -93,7 +89,6 @@ export default function Home() {
     }
   }, [user, fetchGames]);
 
-  // Show loading indicator while checking authentication or loading data
   if (isAuthChecking || isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">

@@ -25,7 +25,6 @@ export default function Library() {
   const { user } = useAuth();
   const router = useRouter();
   
-  // Fetch games from Supabase
   useEffect(() => {
     const loadGames = async () => {
       if (!user) {
@@ -44,7 +43,6 @@ export default function Library() {
         }
         
         if (data) {
-          // Transform data if needed
           const transformedGames: Game[] = data.map(game => ({
             id: game.id,
             title: game.title,
@@ -78,7 +76,6 @@ export default function Library() {
     loadGames();
   }, [user, router, fetchGames]);
 
-  // Filter games based on search and filters
   const filteredGames = games.filter(game => {
     const matchesSearch = game.title.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = selectedStatus ? game.status === selectedStatus : true;
@@ -88,7 +85,6 @@ export default function Library() {
     return matchesSearch && matchesStatus && matchesPlatform && matchesGenre;
   });
 
-  // Sort games
   const sortedGames = [...filteredGames].sort((a, b) => {
     let comparison = 0;
     
@@ -128,7 +124,6 @@ export default function Library() {
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold mb-8">Game Library</h1>
       
-      {/* Filters */}
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-8">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
           <div>
@@ -213,7 +208,6 @@ export default function Library() {
         </div>
       </div>
       
-      {/* Loading state */}
       {isLoading && (
         <div className="text-center py-8">
           <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-indigo-600 border-r-transparent"></div>
@@ -221,7 +215,6 @@ export default function Library() {
         </div>
       )}
       
-      {/* Error state */}
       {error && (
         <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6" role="alert">
           <p className="font-bold">Error loading games</p>
@@ -229,7 +222,6 @@ export default function Library() {
         </div>
       )}
       
-      {/* Empty state */}
       {!isLoading && !error && games.length === 0 && (
         <div className="text-center py-12 bg-white dark:bg-gray-800 rounded-lg shadow-md">
           <h2 className="text-xl font-semibold mb-2">Your library is empty</h2>
@@ -245,14 +237,12 @@ export default function Library() {
         </div>
       )}
       
-      {/* Results count */}
       {!isLoading && !error && games.length > 0 && (
         <p className="text-gray-600 dark:text-gray-300 mb-4">
           Showing {sortedGames.length} of {games.length} games
         </p>
       )}
       
-      {/* Games grid */}
       {!isLoading && !error && games.length > 0 && (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
           {sortedGames.map((game) => (
@@ -264,7 +254,7 @@ export default function Library() {
   );
 }
 
-// Game Card Component
+//GameCard Component
 function GameCard({ game }: { game: Game }) {
   const statusClasses = {
     notStarted: 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300',

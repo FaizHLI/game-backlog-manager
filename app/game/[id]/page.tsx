@@ -34,23 +34,19 @@ export default function GameDetails({ params }: GameDetailsProps) {
   const [playTime, setPlayTime] = useState(0);
   const router = useRouter();
   
-  // Use the auth guard hook
   const { isLoading: isAuthChecking } = useAuthGuard();
   
-  // State for IGDB additional data
   const [igdbData, setIgdbData] = useState<any>(null);
   const [isLoadingIgdbData, setIsLoadingIgdbData] = useState(false);
   
   const { getGame, updateGame, deleteGame } = useGames();
   const { user } = useAuth();
   
-  // Fetch the game from Supabase
   useEffect(() => {
     const fetchGameDetails = async () => {
       setIsLoading(true);
       
       try {
-        // Check if user is authenticated
         if (!user) {
           return;
         }
@@ -85,7 +81,6 @@ export default function GameDetails({ params }: GameDetailsProps) {
     }
   }, [gameId, user, getGame]);
   
-  // Fetch additional data from IGDB if the game has an IGDB ID
   useEffect(() => {
     const fetchIgdbData = async () => {
       if (game?.igdbId) {
@@ -134,10 +129,8 @@ export default function GameDetails({ params }: GameDetailsProps) {
         throw error;
       }
       
-      // Update local state with the saved data
       if (data && data.length > 0) {
         const savedGame = data[0];
-        // Transform database model to frontend model if needed
       }
       
       alert('Game updated successfully!');
@@ -182,7 +175,6 @@ export default function GameDetails({ params }: GameDetailsProps) {
     }
   };
 
-  // Show loading indicator while checking authentication or loading game data
   if (isAuthChecking || isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -233,7 +225,6 @@ export default function GameDetails({ params }: GameDetailsProps) {
             </div>
           </div>
           
-          {/* Game Details */}
           <div className="md:w-2/3 lg:w-3/4 p-6">
             <div className="flex justify-between items-start">
               <div>
@@ -420,8 +411,6 @@ export default function GameDetails({ params }: GameDetailsProps) {
                     </div>
                   </div>
                 )}
-                
-                {/* Add Delete Game button when in edit mode */}
                 {isEditing && (
                   <div className="mt-6">
                     <button
@@ -452,7 +441,6 @@ export default function GameDetails({ params }: GameDetailsProps) {
               )}
             </div>
             
-            {/* Game Summary from IGDB */}
             {igdbData && igdbData.summary && (
               <div className="mt-6">
                 <h2 className="text-xl font-semibold mb-4">Game Summary</h2>
@@ -462,7 +450,6 @@ export default function GameDetails({ params }: GameDetailsProps) {
               </div>
             )}
             
-            {/* Screenshots from IGDB */}
             {igdbData && igdbData.screenshots && igdbData.screenshots.length > 0 && (
               <div className="mt-6">
                 <h2 className="text-xl font-semibold mb-4">Screenshots</h2>
@@ -481,7 +468,6 @@ export default function GameDetails({ params }: GameDetailsProps) {
               </div>
             )}
             
-            {/* Similar Games from IGDB */}
             {igdbData && igdbData.similarGames && igdbData.similarGames.length > 0 && (
               <div className="mt-6">
                 <h2 className="text-xl font-semibold mb-4">Similar Games</h2>
