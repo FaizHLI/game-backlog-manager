@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { statuses } from '@/lib/sample-data';
@@ -43,12 +43,12 @@ export default function GameDetails({ params }: GameDetailsProps) {
   
   const { getGame, updateGame, deleteGame } = useGames();
   const { user } = useAuth();
-  
+  const stableUser = useMemo(() => user, [user?.id]);
   // Fetch the game from Supabase
   useEffect(() => {
     const fetchGameDetails = async () => {
       setIsLoading(true);
-      
+      if(!stableUser) return;
       try {
         // Check if user is authenticated
         if (!user) {
@@ -83,7 +83,7 @@ export default function GameDetails({ params }: GameDetailsProps) {
     if (user) {
       fetchGameDetails();
     }
-  }, [gameId, user, getGame]);
+  }, [gameId, stableUser, getGame]);
   
   // Fetch additional data from IGDB if the game has an IGDB ID
   useEffect(() => {

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { supabase } from './supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import { Game } from '@/lib/sample-data';
-
+import { useCallback } from 'react';
 // Custom hook for managing user's game collection
 export function useGames() {
   const { user } = useAuth();
@@ -10,7 +10,7 @@ export function useGames() {
   const [error, setError] = useState<Error | null>(null);
 
   // Fetch all games for the current user
-  const fetchGames = async () => {
+  const fetchGames = useCallback(async () => {
     if (!user) {
       setError(new Error('User is not authenticated'));
       return { data: null, error: new Error('User is not authenticated') };
@@ -37,7 +37,7 @@ export function useGames() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   // Add a new game to the collection
   const addGame = async (game: Omit<Game, 'id'>) => {
@@ -66,7 +66,7 @@ export function useGames() {
         rating: game.rating,
         play_time: game.playTime,
         notes: game.notes,
-        added_date: game.addedDate || new Date().toISOString().split('T')[0],
+        added_date: game.added_date || new Date().toISOString().split('T')[0],
       };
 
       const { data, error } = await supabase
@@ -169,7 +169,7 @@ export function useGames() {
   };
 
   // Get a single game by ID
-  const getGame = async (gameId: number) => {
+  const getGame = useCallback(async (gameId: number) => {
     if (!user) {
       setError(new Error('User is not authenticated'));
       return { data: null, error: new Error('User is not authenticated') };
@@ -205,7 +205,7 @@ export function useGames() {
         rating: data.rating,
         playTime: data.play_time,
         notes: data.notes,
-        addedDate: data.added_date,
+        added_date: data.added_date,
         igdbId: data.igdb_id,
       };
 
@@ -216,7 +216,7 @@ export function useGames() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user?.id]);
 
   return {
     fetchGames,

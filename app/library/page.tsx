@@ -8,6 +8,7 @@ import type { Game } from '@/lib/sample-data';
 import { useGames } from '@/utils/supabase-hooks';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
+import { getIGDBImageUrl } from '@/utils/igdb'; // Import the IGDB image URL helper
 
 export default function Library() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -22,12 +23,13 @@ export default function Library() {
   const [error, setError] = useState<string | null>(null);
   
   const { fetchGames } = useGames();
-  const { user } = useAuth();
+  const { user, isLoading : authLoading } = useAuth();
   const router = useRouter();
   
   // Fetch games from Supabase
   useEffect(() => {
     const loadGames = async () => {
+      if(authLoading) return;
       if (!user) {
         router.push('/login');
         return;
@@ -45,23 +47,37 @@ export default function Library() {
         
         if (data) {
           // Transform data if needed
-          const transformedGames: Game[] = data.map(game => ({
-            id: game.id,
-            title: game.title,
-            coverUrl: game.cover_url || 'https://placehold.co/300x400/gray/white?text=No+Image',
-            platform: game.platform || '',
-            releaseDate: game.release_date || '',
-            developer: game.developer || '',
-            publisher: game.publisher || '',
-            genres: game.genres || [],
-            status: game.status,
-            progress: game.progress || 0,
-            rating: game.rating || 0,
-            playTime: game.play_time || 0,
-            notes: game.notes || '',
-            added_date: game.added_date,
-            igdbId: game.igdb_id || undefined
-          }));
+          const transformedGames: Game[] = data.map(game => {
+            // Process cover URL if it exists and we have an IGDB ID
+            let cover = game.cover || '';
+            
+            // If we have an IGDB ID and a cover URL that looks like it might be just the image ID
+            if (game.igdb_id && cover && !cover.includes('http') && !cover.startsWith('/')) {
+              // Check if it's just the image hash (without full URL structure)
+              if (cover.match(/^[a-zA-Z0-9_-]+$/)) {
+                cover = getIGDBImageUrl(cover, 'cover_big');
+                console.log(`Converted IGDB image ID to URL: ${cover} for game ${game.title}`);
+              }
+            }
+            
+            return {
+              id: game.id,
+              title: game.title,
+              coverUrl: cover,
+              platform: game.platform || '',
+              releaseDate: game.release_date || '',
+              developer: game.developer || '',
+              publisher: game.publisher || '',
+              genres: game.genres || [],
+              status: game.status,
+              progress: game.progress || 0,
+              rating: game.rating || 0,
+              playTime: game.play_time || 0,
+              notes: game.notes || '',
+              added_date: game.added_date,
+              igdbId: game.igdb_id || undefined
+            };
+          });
           
           setGames(transformedGames);
         } else {
@@ -76,7 +92,7 @@ export default function Library() {
     };
     
     loadGames();
-  }, [user, router, fetchGames]);
+  }, [user, authLoading, router, fetchGames]);
 
   // Filter games based on search and filters
   const filteredGames = games.filter(game => {
@@ -282,15 +298,22 @@ function GameCard({ game }: { game: Game }) {
     dropped: 'Dropped'
   };
 
+  // Get actual cover image from IGDB if available
+  const getCoverImage = () => {
+    return getIGDBImageUrl(game.coverUrl.toString(), "cover_big");
+  };
+
   return (
     <Link href={`/game/${game.id}`}>
-      <div className="game-card bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden hover:shadow-lg">
+      <div className="game-card bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300">
         <div className="relative h-48 w-full">
           <Image
-            src={game.coverUrl}
+            src={getCoverImage()}
             alt={game.title}
             fill
+            sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
             className="object-cover"
+            unoptimized={!!(game.coverUrl && game.coverUrl.includes('igdb'))} // Skip Next.js optimization for external IGDB images
           />
         </div>
         <div className="p-4">
@@ -317,12 +340,12 @@ function GameCard({ game }: { game: Game }) {
               {statusLabels[game.status]}
             </span>
             
-            {game.rating && (
+            {game.rating ? game.rating.toFixed(1):0 > 0 && (
               <span className="flex items-center text-yellow-500">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
                   <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                 </svg>
-                <span className="ml-1 text-xs">{game.rating}</span>
+                <span className="ml-1 text-xs font-medium">{game.rating ? game.rating.toFixed(1) : '0.0'}</span>
               </span>
             )}
           </div>

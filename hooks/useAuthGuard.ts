@@ -4,54 +4,34 @@ import { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 
+// A very simple hook that just checks if the user is authenticated once and redirects if needed
 export function useAuthGuard(requireAuth = true, redirectTo = requireAuth ? '/login' : '/') {
-  const { user, isLoading: isAuthLoading } = useAuth();
+  const { user, isLoading } = useAuth();
   const router = useRouter();
-  const [isChecking, setIsChecking] = useState(true);
+  const [checkCompleted, setCheckCompleted] = useState(false);
   
-  // Use a ref to track if we've already redirected to prevent loops
-  const hasRedirected = useRef(false);
-  // Use a ref to track mounted state to avoid state updates after unmount
-  const isMounted = useRef(true);
-  // Track the last auth state to detect changes
-  const lastAuthState = useRef<boolean | null>(null);
-
+  // Only run the check once when the component mounts
+  const didRun = useRef(false);
+  
   useEffect(() => {
-    isMounted.current = true;
-    return () => {
-      isMounted.current = false;
-    };
-  }, []);
-
-  useEffect(() => {
-    // Skip if still loading auth
-    if (isAuthLoading) return;
-
-    // Get current auth state
+    // Skip if we've already run this effect or if auth is still loading
+    if (didRun.current || isLoading) return;
+    
+    // Mark as run to prevent future executions
+    didRun.current = true;
+    
     const isAuthenticated = !!user;
     
-    // Check if auth state actually changed
-    const authStateChanged = lastAuthState.current !== isAuthenticated;
-    lastAuthState.current = isAuthenticated;
-    
-    // Only perform redirect if auth state changed and we haven't redirected yet
-    if (authStateChanged && !hasRedirected.current) {
-      const shouldRedirect = 
-        (requireAuth && !isAuthenticated) || // Needs auth but not authenticated
-        (!requireAuth && isAuthenticated);   // Doesn't need auth but is authenticated
-      
-      if (shouldRedirect) {
-        console.log(`Redirecting to ${redirectTo} (requireAuth: ${requireAuth}, isAuthenticated: ${isAuthenticated})`);
-        hasRedirected.current = true; // Mark as redirected to prevent loops
-        router.push(redirectTo);
-      }
+    // Simple check: If we need auth and don't have it, or don't need auth and have it
+    if ((requireAuth && !isAuthenticated) || (!requireAuth && isAuthenticated)) {
+      console.log(`[Auth Guard] Redirecting to ${redirectTo}`);
+      router.push(redirectTo);
     }
     
-    // Always update checking state when auth loading completes
-    if (isMounted.current && !isAuthLoading) {
-      setIsChecking(false);
-    }
-  }, [user, isAuthLoading, requireAuth, redirectTo, router]);
-
-  return { isLoading: isAuthLoading || isChecking };
+    // Mark the check as complete regardless
+    setCheckCompleted(true);
+  }, [user, isLoading, requireAuth, redirectTo, router]);
+  
+  // Return loading state - true until auth check is done AND auth loading is done
+  return { isLoading: isLoading || !checkCompleted };
 }
