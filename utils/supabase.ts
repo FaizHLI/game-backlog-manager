@@ -8,7 +8,6 @@ if (!supabaseUrl || !supabaseAnonKey) {
   throw new Error('Missing Supabase environment variables');
 }
 
-// Create a client with better cookie options
 export const supabase = createClient<Database>(
   supabaseUrl, 
   supabaseAnonKey,
@@ -23,8 +22,6 @@ export const supabase = createClient<Database>(
   }
 );
 
-// Create a Supabase client with the service role key for admin operations
-// Note: This should only be used in secure server contexts (like API routes)
 export const getServiceSupabase = () => {
   const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY as string;
   

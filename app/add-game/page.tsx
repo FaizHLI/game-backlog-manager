@@ -10,7 +10,6 @@ import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/utils/supabase';
 import { useAuthGuard } from '@/hooks/useAuthGuard';
 
-// Define an interface for search results based on our API response
 interface GameSearchResult {
   id: number;
   name: string;
@@ -42,7 +41,6 @@ export default function AddGame() {
     searchResults: [] as GameSearchResult[],
     igdbId: null as number | null,
     coverUrl: '',
-    // Initialize added_date with empty string
     added_date: ''
   });
   
@@ -59,10 +57,8 @@ export default function AddGame() {
     setShowSearchResults(false);
     
     try {
-      // Call our API endpoint to search IGDB
       const igdbResults = await searchGames(formData.searchQuery);
       
-      // Transform the results to match our GameSearchResult interface
       const searchResults: GameSearchResult[] = igdbResults.map(game => ({
         id: game.id,
         name: game.name,
@@ -90,7 +86,6 @@ export default function AddGame() {
   };
   
   const handleSelectGame = (game: GameSearchResult) => {
-    // Use the selected game's genres if available
     const selectedGenres = game.genres || [];
     
     setFormData({
@@ -102,7 +97,6 @@ export default function AddGame() {
       publisher: game.publisher || '',
       selectedGenres,
       notes: game.summary || '',
-      // Store IGDB ID to enable future updates
       igdbId: game.id,
       coverUrl: game.cover
     });
@@ -114,9 +108,7 @@ export default function AddGame() {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     
-    // For the status field, we need to handle it specially
     if (name === 'status') {
-      // Validate that value is a valid status
       const isValidStatus = statuses.some(s => s.value === value);
       if (isValidStatus) {
         setFormData({
@@ -136,11 +128,9 @@ export default function AddGame() {
     const selectedGenres = [...formData.selectedGenres];
     
     if (selectedGenres.includes(genre)) {
-      // Remove genre if already selected
       const index = selectedGenres.indexOf(genre);
       selectedGenres.splice(index, 1);
     } else {
-      // Add genre if not selected
       selectedGenres.push(genre);
     }
     
@@ -150,15 +140,12 @@ export default function AddGame() {
     });
   };
   
-  // Function to add game to database
   const addGame = async (gameData: any) => {
     if (!user) {
       throw new Error("You must be logged in to add a game");
     }
     
     try {
-      // Make sure we're using the correct field name for the database
-      // If your DB expects snake_case, we're already using the correct naming in gameData
       const { data, error } = await supabase
         .from('games')
         .insert({
@@ -185,7 +172,6 @@ export default function AddGame() {
     
     setIsSubmitting(true);
     
-    // Prepare the game data for saving - use the snake_case field name that matches the database
     const gameData = {
       title: formData.title,
       platform: formData.platform || '',
@@ -194,12 +180,10 @@ export default function AddGame() {
       publisher: formData.publisher || '',
       genres: formData.selectedGenres,
       status: formData.status,
-      // Only include progress if it's an in-progress game
       ...(formData.status === 'inProgress' && { progress: formData.progress }),
       notes: formData.notes || '',
       igdbId: formData.igdbId || undefined,
       coverUrl: formData.coverUrl || (formData.searchResults.find(g => g.id === formData.igdbId)?.cover || ''),
-      // Use the correct snake_case field name that matches your database
       added_date: new Date().toISOString().split('T')[0]
     };
     
@@ -210,10 +194,8 @@ export default function AddGame() {
         throw error;
       }
       
-      // Show success message
       alert('Game added successfully!');
       
-      // Navigate back to the library
       router.push('/library');
     } catch (error: any) {
       console.error('Error adding game:', error);
@@ -228,7 +210,6 @@ export default function AddGame() {
     setCurrentStep(2);
   };
   
-  // Show loading state while checking authentication
   if (isAuthChecking) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -246,7 +227,6 @@ export default function AddGame() {
       <h1 className="text-3xl font-bold mb-8">Add New Game</h1>
       
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
-        {/* Step Indicator */}
         <div className="mb-8">
           <div className="flex items-center justify-between">
             <div className="flex-1">

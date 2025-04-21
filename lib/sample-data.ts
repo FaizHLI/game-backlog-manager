@@ -10,12 +10,12 @@ export type Game = {
     publisher: string;
     genres: string[];
     status: 'notStarted' | 'inProgress' | 'completed' | 'onHold' | 'dropped';
-    progress?: number;  // Using optional (?) instead of | undefined to make it clearer
+    progress?: number;
     rating?: number;
     playTime?: number;
     notes?: string;
     added_date: string;
-    igdbId?: number; // IGDB Game ID for API integration
+    igdbId?: number;
   };
   
   export const sampleGames: Game[] = [

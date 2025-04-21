@@ -33,7 +33,6 @@ export default function Settings() {
     progressReminderDays: 7,
   });
 
-  // Fetch user profile settings
   useEffect(() => {
     const loadProfile = async () => {
       if (!user) {

@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
 
-// Function to get a valid access token (stored or refreshed)
 async function getAccessToken() {
   let accessToken = process.env.IGDB_ACCESS_TOKEN;
   const clientId = process.env.IGDB_CLIENT_ID;
@@ -10,7 +9,6 @@ async function getAccessToken() {
     throw new Error('Missing IGDB client credentials');
   }
   
-  // If no token exists, get a new one
   if (!accessToken) {
     console.log('No access token found, requesting a new one');
     
@@ -48,7 +46,6 @@ export async function POST(request: Request) {
     const accessToken = await getAccessToken();
     const clientId = process.env.IGDB_CLIENT_ID;
     
-    // IGDB API query to get detailed information about a specific game
     const igdbQuery = `
       fields name, cover.image_id, platforms.name, first_release_date, genres.name, 
         involved_companies.company.name, involved_companies.developer, involved_companies.publisher,
@@ -81,7 +78,6 @@ export async function POST(request: Request) {
     
     const game = games[0];
     
-    // Extract developer and publisher
     let developer = '';
     let publisher = '';
     
@@ -96,34 +92,28 @@ export async function POST(request: Request) {
       });
     }
     
-    // Format platforms
     const platforms = game.platforms 
       ? game.platforms.map((p: any) => p.name)
       : [];
     
-    // Format genres
     const genres = game.genres 
       ? game.genres.map((g: any) => g.name) 
       : [];
     
-    // Format release date
     const releaseDate = game.first_release_date
       ? new Date(game.first_release_date * 1000).toISOString().split('T')[0]
       : '';
     
-    // Format cover image URL
     const coverUrl = game.cover
       ? `https://images.igdb.com/igdb/image/upload/t_cover_big/${game.cover.image_id}.jpg`
       : 'https://placehold.co/300x400/gray/white?text=No+Image';
     
-    // Format screenshots
     const screenshots = game.screenshots
       ? game.screenshots.map((s: any) => 
           `https://images.igdb.com/igdb/image/upload/t_screenshot_big/${s.image_id}.jpg`
         )
       : [];
     
-    // Format similar games
     const similarGames = game.similar_games
       ? game.similar_games.map((g: any) => ({
           id: g.id,
@@ -134,7 +124,6 @@ export async function POST(request: Request) {
         }))
       : [];
     
-    // Format rating (out of 100 -> out of 5)
     const rating = game.total_rating 
       ? Math.round((game.total_rating / 20) * 10) / 10
       : null;

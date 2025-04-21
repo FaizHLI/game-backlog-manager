@@ -3,13 +3,11 @@ import { supabase } from './supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import { Game } from '@/lib/sample-data';
 import { useCallback } from 'react';
-// Custom hook for managing user's game collection
+
 export function useGames() {
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
-
-  // Fetch all games for the current user
   const fetchGames = useCallback(async () => {
     if (!user) {
       setError(new Error('User is not authenticated'));
@@ -39,7 +37,6 @@ export function useGames() {
     }
   }, []);
 
-  // Add a new game to the collection
   const addGame = async (game: Omit<Game, 'id'>) => {
     if (!user) {
       setError(new Error('User is not authenticated'));
@@ -50,7 +47,6 @@ export function useGames() {
     setError(null);
 
     try {
-      // Prepare the game data for Supabase
       const gameData = {
         user_id: user.id,
         title: game.title,
@@ -87,7 +83,6 @@ export function useGames() {
     }
   };
 
-  // Update an existing game
   const updateGame = async (gameId: number, updates: Partial<Game>) => {
     if (!user) {
       setError(new Error('User is not authenticated'));
@@ -98,7 +93,6 @@ export function useGames() {
     setError(null);
 
     try {
-      // Convert frontend data model to database model
       const gameData: any = {};
       
       if (updates.title) gameData.title = updates.title;
@@ -115,14 +109,13 @@ export function useGames() {
       if ('playTime' in updates) gameData.play_time = updates.playTime;
       if ('notes' in updates) gameData.notes = updates.notes;
       
-      // Always update the updated_at timestamp
       gameData.updated_at = new Date().toISOString();
 
       const { data, error } = await supabase
         .from('games')
         .update(gameData)
         .eq('id', gameId)
-        .eq('user_id', user.id) // Security: ensure the game belongs to the user
+        .eq('user_id', user.id)
         .select();
 
       if (error) {
@@ -138,7 +131,6 @@ export function useGames() {
     }
   };
 
-  // Delete a game
   const deleteGame = async (gameId: number) => {
     if (!user) {
       setError(new Error('User is not authenticated'));
@@ -153,7 +145,7 @@ export function useGames() {
         .from('games')
         .delete()
         .eq('id', gameId)
-        .eq('user_id', user.id); // Security: ensure the game belongs to the user
+        .eq('user_id', user.id);
 
       if (error) {
         throw error;
@@ -168,7 +160,6 @@ export function useGames() {
     }
   };
 
-  // Get a single game by ID
   const getGame = useCallback(async (gameId: number) => {
     if (!user) {
       setError(new Error('User is not authenticated'));
@@ -183,14 +174,13 @@ export function useGames() {
         .from('games')
         .select('*')
         .eq('id', gameId)
-        .eq('user_id', user.id) // Security: ensure the game belongs to the user
+        .eq('user_id', user.id)
         .single();
 
       if (error) {
         throw error;
       }
 
-      // Transform database model to frontend model
       const game: Game = {
         id: data.id,
         title: data.title,
@@ -229,13 +219,11 @@ export function useGames() {
   };
 }
 
-// Custom hook for user profile management
 export function useProfile() {
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
-  // Fetch user profile
   const fetchProfile = async () => {
     if (!user) {
       setError(new Error('User is not authenticated'));
@@ -265,7 +253,6 @@ export function useProfile() {
     }
   };
 
-  // Update user profile
   const updateProfile = async (updates: {
     username?: string;
     full_name?: string;
@@ -284,7 +271,6 @@ export function useProfile() {
     setError(null);
 
     try {
-      // Add the updated_at timestamp
       const profileData = {
         ...updates,
         updated_at: new Date().toISOString(),

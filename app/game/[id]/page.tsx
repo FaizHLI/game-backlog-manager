@@ -35,10 +35,8 @@ export default function GameDetails({ params }: GameDetailsProps) {
   const [playTime, setPlayTime] = useState(0);
   const router = useRouter();
   
-  // Use the auth guard hook
   const { isLoading: isAuthChecking } = useAuthGuard();
   
-  // State for IGDB additional data
   const [igdbData, setIgdbData] = useState<any>(null);
   const [isLoadingIgdbData, setIsLoadingIgdbData] = useState(false);
   
@@ -51,7 +49,6 @@ export default function GameDetails({ params }: GameDetailsProps) {
       setIsLoading(true);
       if(!stableUser) return;
       try {
-        // Check if user is authenticated
         if (!user) {
           return;
         }
@@ -86,7 +83,6 @@ export default function GameDetails({ params }: GameDetailsProps) {
     }
   }, [gameId, stableUser, getGame]);
   
-  // Fetch additional data from IGDB if the game has an IGDB ID
   useEffect(() => {
     const fetchIgdbData = async () => {
       if (game?.igdbId) {
@@ -135,10 +131,8 @@ export default function GameDetails({ params }: GameDetailsProps) {
         throw error;
       }
       
-      // Update local state with the saved data
       if (data && data.length > 0) {
         const savedGame = data[0];
-        // Transform database model to frontend model if needed
       }
       
       alert('Game updated successfully!');
@@ -183,7 +177,6 @@ export default function GameDetails({ params }: GameDetailsProps) {
     }
   };
 
-  // Show loading indicator while checking authentication or loading game data
   if (isAuthChecking || isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -199,13 +192,11 @@ export default function GameDetails({ params }: GameDetailsProps) {
     return notFound();
   }
   const getCoverImage = () => {
-    // If it's already a complete URL, use it directly
     if (currentGame.coverUrl && (currentGame.coverUrl.startsWith('http') || currentGame.coverUrl.startsWith('//'))) {
       console.log(currentGame.coverUrl);
       return currentGame.coverUrl;
     }
-     // Otherwise, try to format it as an IGDB image ID
-        return getIGDBImageUrl(currentGame.coverUrl || '', "cover_big");
+    return getIGDBImageUrl(currentGame.coverUrl || '', "cover_big");
   };
   const statusColor = {
     notStarted: 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300',

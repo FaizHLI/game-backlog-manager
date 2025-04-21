@@ -21,11 +21,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Track mounted state to prevent state updates after unmount
     let isMounted = true;
     let initialSessionChecked = false;
 
-    // Get initial session on mount
     const getInitialSession = async () => {
       try {
         const { data: { session }, error } = await supabase.auth.getSession();
@@ -55,9 +53,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         console.log('Auth state changed:', event, session?.user?.email);
-        
-        // Only update state if the initial session check has completed
-        // This prevents duplicate state updates during initialization
         if (isMounted && initialSessionChecked) {
           setSession(session);
           setUser(session?.user ?? null);
@@ -65,8 +60,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
       }
     );
-
-    // Clean up on unmount
+    
     return () => {
       isMounted = false;
       subscription.unsubscribe();

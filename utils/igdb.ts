@@ -16,7 +16,6 @@ export interface IGDBGame {
     publisher?: string;
     genres?: string[];
     summary?: string;
-    // Additional fields that might be returned from our API
     rating?: number;
     ratingCount?: number;
     screenshots?: string[];
@@ -25,20 +24,15 @@ export interface IGDBGame {
     themes?: string[];
   }
   
-  // Helper to convert IGDB cover ID to full image URL
   export function getIGDBImageUrl(imageId: string, size: 'cover_small' | 'cover_big' | 'screenshot_big' | 'logo_med' = 'cover_big'): string {
     return `https://images.igdb.com/igdb/image/upload/t_${size}/${imageId}.jpg`;
   }
   
-  // Helper to convert UNIX timestamp to date string
   export function formatIGDBDate(timestamp?: number): string {
     if (!timestamp) return '';
     return new Date(timestamp * 1000).toISOString().split('T')[0];
   }
   
-  /**
-   * Search for games using the IGDB API
-   */
   export async function searchGames(query: string): Promise<IGDBGame[]> {
     try {
       const response = await fetch('/api/igdb/search', {
@@ -60,9 +54,6 @@ export interface IGDBGame {
     }
   }
   
-  /**
-   * Get game details by ID from IGDB API
-   */
   export async function getGameDetails(gameId: number): Promise<IGDBGame> {
     try {
       const response = await fetch('/api/igdb/game', {

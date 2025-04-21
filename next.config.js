@@ -4,7 +4,7 @@ const nextConfig = {
     images: {
       domains: [
         'placehold.co',
-        'images.igdb.com'  // Add IGDB's image domain
+        'images.igdb.com' 
       ],
     },
   };

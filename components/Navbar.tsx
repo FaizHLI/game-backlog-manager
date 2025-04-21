@@ -17,7 +17,6 @@ export default function Navbar() {
   const [profileData, setProfileData] = useState<any>(null);
   const [profileLoading, setProfileLoading] = useState(false);
 
-  // Fetch user profile data for the avatar
   useEffect(() => {
     const getProfile = async () => {
       if (!user) return;

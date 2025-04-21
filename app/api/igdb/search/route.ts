@@ -1,9 +1,5 @@
 import { NextResponse } from 'next/server';
 
-// IGDB requires a valid access token for API requests
-// This token expires after a certain period and needs to be refreshed
-
-// Function to get a valid access token (stored or refreshed)
 async function getAccessToken() {
   let accessToken = process.env.IGDB_ACCESS_TOKEN;
   const clientId = process.env.IGDB_CLIENT_ID;
@@ -13,7 +9,6 @@ async function getAccessToken() {
     throw new Error('Missing IGDB client credentials');
   }
   
-  // If no token exists, get a new one
   if (!accessToken) {
     console.log('No access token found, requesting a new one');
     
@@ -29,9 +24,6 @@ async function getAccessToken() {
       
       const data = await response.json();
       accessToken = data.access_token;
-      
-      // In a production environment, you would store this token securely
-      // and check its expiration before each request
       console.log('New access token received');
     } catch (error) {
       console.error('Error fetching access token:', error);
@@ -53,8 +45,6 @@ export async function POST(request: Request) {
     const accessToken = await getAccessToken();
     const clientId = process.env.IGDB_CLIENT_ID;
     
-    // IGDB API uses a custom query language
-    // This query fetches games matching the search term with cover images, platforms, and release dates
     const igdbQuery = `
       search "${query}";
       fields name, cover.image_id, platforms.name, first_release_date, genres.name, 
@@ -80,9 +70,7 @@ export async function POST(request: Request) {
     
     const games = await response.json();
     
-    // Transform the response to match our expected format
     const transformedGames = games.map((game: any) => {
-      // Extract developer and publisher
       let developer = '';
       let publisher = '';
       
@@ -97,22 +85,18 @@ export async function POST(request: Request) {
         });
       }
       
-      // Format platforms
       const platforms = game.platforms 
         ? game.platforms.map((p: any) => p.name).join(', ')
         : '';
       
-      // Format genres
       const genres = game.genres 
         ? game.genres.map((g: any) => g.name) 
         : [];
       
-      // Format release date
       const releaseDate = game.first_release_date
         ? new Date(game.first_release_date * 1000).toISOString().split('T')[0]
         : '';
       
-      // Format cover image URL
       const coverUrl = game.cover
         ? `https://images.igdb.com/igdb/image/upload/t_cover_big/${game.cover.image_id}.jpg`
         : 'https://placehold.co/300x400/gray/white?text=No+Image';

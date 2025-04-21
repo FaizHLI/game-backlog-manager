@@ -14,7 +14,6 @@ export default function Login() {
   const router = useRouter();
   const { signIn } = useAuth();
   
-  // This will redirect to home if user is already logged in
   const { isLoading: isAuthChecking } = useAuthGuard(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -29,7 +28,6 @@ export default function Login() {
         throw error;
       }
       
-      // Redirect to home page on successful login
       router.push('/');
     } catch (error: any) {
       console.error('Login error:', error);
@@ -39,7 +37,6 @@ export default function Login() {
     }
   };
   
-  // Show loading indicator while checking authentication
   if (isAuthChecking) {
     return (
       <div className="flex items-center justify-center min-h-screen">

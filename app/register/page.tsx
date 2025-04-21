@@ -15,8 +15,6 @@ export default function Register() {
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const router = useRouter();
   const { signUp } = useAuth();
-  
-  // This will redirect to home if user is already logged in
   const { isLoading: isAuthChecking } = useAuthGuard(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -59,7 +57,6 @@ export default function Register() {
     }
   };
   
-  // Show loading indicator while checking authentication
   if (isAuthChecking) {
     return (
       <div className="flex items-center justify-center min-h-screen">
