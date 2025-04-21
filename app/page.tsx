@@ -43,7 +43,7 @@ export default function Home() {
           const transformedGames: Game[] = data.map(game => ({
             id: game.id,
             title: game.title,
-            coverUrl: game.cover_url || 'https://placehold.co/300x400/gray/white?text=No+Image',
+            coverUrl: game.coverUrl || 'https://placehold.co/300x400/gray/white?text=No+Image',
             platform: game.platform || '',
             releaseDate: game.release_date || '',
             developer: game.developer || '',

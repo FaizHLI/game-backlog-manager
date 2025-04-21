@@ -48,7 +48,7 @@ export default function Library() {
         if (data) {
           // Transform data if needed
           const transformedGames: Game[] = data.map(game => {
-            let cover = game.cover || '';
+            let cover = game.coverUrl || '';
             
             
             return {
@@ -285,9 +285,15 @@ function GameCard({ game }: { game: Game }) {
     dropped: 'Dropped'
   };
 
-  // Get actual cover image from IGDB if available
   const getCoverImage = () => {
-    return getIGDBImageUrl(game.coverUrl.toString(), "cover_big");
+    // If it's already a complete URL, use it directly
+    if (game.coverUrl && (game.coverUrl.startsWith('http') || game.coverUrl.startsWith('//'))) {
+      console.log(game.coverUrl);
+      return game.coverUrl;
+    }
+    
+    // Otherwise, try to format it as an IGDB image ID
+    return getIGDBImageUrl(game.coverUrl || '', "cover_big");
   };
 
   return (

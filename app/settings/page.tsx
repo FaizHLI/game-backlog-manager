@@ -41,7 +41,7 @@ export default function Settings() {
         return;
       }
 
-      setLoading(true);
+      setLoading(false);
       setError(null);
 
       try {
