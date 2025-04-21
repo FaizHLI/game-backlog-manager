@@ -8,7 +8,7 @@ import type { Game } from '@/lib/sample-data';
 import { useGames } from '@/utils/supabase-hooks';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
-import { getIGDBImageUrl } from '@/utils/igdb'; // Import the IGDB image URL helper
+import { getIGDBImageUrl } from '@/utils/igdb';
 
 export default function Library() {
   const [searchTerm, setSearchTerm] = useState('');

@@ -10,6 +10,7 @@ import { getGameDetails } from '@/utils/igdb';
 import { useGames } from '@/utils/supabase-hooks';
 import { useAuth } from '@/contexts/AuthContext';
 import { useAuthGuard } from '@/hooks/useAuthGuard';
+import { getIGDBImageUrl } from '@/utils/igdb';
 
 interface ExtendedGame extends Game {
   igdbId?: number;
@@ -105,7 +106,7 @@ export default function GameDetails({ params }: GameDetailsProps) {
       fetchIgdbData();
     }
   }, [game]);
-
+  
   const handleSave = async () => {
     if (!currentGame) return;
     
@@ -197,7 +198,15 @@ export default function GameDetails({ params }: GameDetailsProps) {
   if (!currentGame) {
     return notFound();
   }
-  
+  const getCoverImage = () => {
+    // If it's already a complete URL, use it directly
+    if (currentGame.coverUrl && (currentGame.coverUrl.startsWith('http') || currentGame.coverUrl.startsWith('//'))) {
+      console.log(currentGame.coverUrl);
+      return currentGame.coverUrl;
+    }
+     // Otherwise, try to format it as an IGDB image ID
+        return getIGDBImageUrl(currentGame.coverUrl || '', "cover_big");
+  };
   const statusColor = {
     notStarted: 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300',
     inProgress: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200',
@@ -225,7 +234,7 @@ export default function GameDetails({ params }: GameDetailsProps) {
           <div className="md:w-1/3 lg:w-1/4">
             <div className="relative h-96 md:h-full w-full">
               <Image
-                src={currentGame.coverUrl}
+                src={getCoverImage()}
                 alt={currentGame.title}
                 fill
                 className="object-cover"
