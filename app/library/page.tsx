@@ -48,17 +48,8 @@ export default function Library() {
         if (data) {
           // Transform data if needed
           const transformedGames: Game[] = data.map(game => {
-            // Process cover URL if it exists and we have an IGDB ID
             let cover = game.cover || '';
             
-            // If we have an IGDB ID and a cover URL that looks like it might be just the image ID
-            if (game.igdb_id && cover && !cover.includes('http') && !cover.startsWith('/')) {
-              // Check if it's just the image hash (without full URL structure)
-              if (cover.match(/^[a-zA-Z0-9_-]+$/)) {
-                cover = getIGDBImageUrl(cover, 'cover_big');
-                console.log(`Converted IGDB image ID to URL: ${cover} for game ${game.title}`);
-              }
-            }
             
             return {
               id: game.id,
@@ -144,7 +135,6 @@ export default function Library() {
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold mb-8">Game Library</h1>
       
-      {/* Filters */}
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-8">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
           <div>
@@ -229,15 +219,13 @@ export default function Library() {
         </div>
       </div>
       
-      {/* Loading state */}
       {isLoading && (
         <div className="text-center py-8">
           <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-indigo-600 border-r-transparent"></div>
           <p className="mt-4">Loading your game library...</p>
         </div>
       )}
-      
-      {/* Error state */}
+
       {error && (
         <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6" role="alert">
           <p className="font-bold">Error loading games</p>
@@ -245,7 +233,6 @@ export default function Library() {
         </div>
       )}
       
-      {/* Empty state */}
       {!isLoading && !error && games.length === 0 && (
         <div className="text-center py-12 bg-white dark:bg-gray-800 rounded-lg shadow-md">
           <h2 className="text-xl font-semibold mb-2">Your library is empty</h2>
@@ -261,14 +248,14 @@ export default function Library() {
         </div>
       )}
       
-      {/* Results count */}
+
       {!isLoading && !error && games.length > 0 && (
         <p className="text-gray-600 dark:text-gray-300 mb-4">
           Showing {sortedGames.length} of {games.length} games
         </p>
       )}
       
-      {/* Games grid */}
+
       {!isLoading && !error && games.length > 0 && (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
           {sortedGames.map((game) => (
